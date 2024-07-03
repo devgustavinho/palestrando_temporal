@@ -1,3 +1,2 @@
 # palestrando_temporal
-# palestrando_temporal
-# palestrando_temporal
+Palestrando Brasil afora
