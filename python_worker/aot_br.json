@@ -1,0 +1,58 @@
+{
+    "url": "https://www.xe.com/api/protected/statistics/?from=AOA&to=BRL",
+    "last1Days": {
+        "to": "BRL",
+        "high": 0.0065132746,
+        "low": 0.0063791293,
+        "average": 0.0064462019,
+        "standardDeviation": -1,
+        "volatility": -1,
+        "highTimestamp": "2024-07-03T00:00:00Z",
+        "lowTimestamp": "2024-07-04T00:00:00Z",
+        "dataPoints": 2
+    },
+    "last7Days": {
+        "to": "BRL",
+        "high": 0.0065546745,
+        "low": 0.0063603049,
+        "average": 0.0064605476,
+        "standardDeviation": 0.0000773529,
+        "volatility": 1.6237462257,
+        "highTimestamp": "2024-06-30T00:00:00Z",
+        "lowTimestamp": "2024-06-28T00:00:00Z",
+        "dataPoints": 8
+    },
+    "last30Days": {
+        "to": "BRL",
+        "high": 0.0065546745,
+        "low": 0.0060987283,
+        "average": 0.0063009819,
+        "standardDeviation": 0.0001229739,
+        "volatility": 1.1673670817,
+        "highTimestamp": "2024-06-30T00:00:00Z",
+        "lowTimestamp": "2024-06-07T00:00:00Z",
+        "dataPoints": 31
+    },
+    "last60Days": {
+        "to": "BRL",
+        "high": 0.0065546745,
+        "low": 0.0059657881,
+        "average": 0.006179014,
+        "standardDeviation": 0.0001581777,
+        "volatility": 1.01150548,
+        "highTimestamp": "2024-06-30T00:00:00Z",
+        "lowTimestamp": "2024-05-22T00:00:00Z",
+        "dataPoints": 61
+    },
+    "last90Days": {
+        "to": "BRL",
+        "high": 0.0065546745,
+        "low": 0.0059322302,
+        "average": 0.0061571275,
+        "standardDeviation": 0.0001412477,
+        "volatility": 0.9797271189,
+        "highTimestamp": "2024-06-30T00:00:00Z",
+        "lowTimestamp": "2024-04-10T00:00:00Z",
+        "dataPoints": 91
+    }
+}

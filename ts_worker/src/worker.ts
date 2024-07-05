@@ -1,22 +1,12 @@
-import { Worker, WorkerOptions } from '@temporalio/worker';
-import { createActivities } from './activities';
-import { createClients } from './clients';
+import { Worker } from '@temporalio/worker';
+import * as activities from './activities';
 
-// worker
 async function run() {
-  const taskQueue = process.env.TEMPORAL_TASK_QUEUE || 'saga-demo';
-
-  // registrations
-  const singletonClients = await createClients();
-  const activities = createActivities(singletonClients);
-
-  const opts: WorkerOptions = {
+  const worker = await Worker.create({
     workflowsPath: require.resolve('./workflows'),
     activities,
-    taskQueue,
-  };
-
-  const worker = await Worker.create(opts);
+    taskQueue: 'banco',
+  });
 
   await worker.run();
 }

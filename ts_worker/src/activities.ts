@@ -1,17 +1,15 @@
-import { BoundedContextClients } from './clients';
+import { activityInfo } from '@temporalio/activity';
+import axios from "axios";
+export type Saldo = {
+  valor: number;
+  tentativa: number;
+};
+export async function consultarSaldoXXBank(): Promise<Saldo> {
+  const tentativa = activityInfo().attempt || 1;
+  const { data: resultado } = await axios.get("http://localhost:3000");
 
-// createActivities just returns client implementations directly right now, but later might decorate
-export function createActivities(clients: BoundedContextClients) {
   return {
-    createAccount: clients.accounts.createAccount.bind(clients.accounts),
-
-    addBankAccount: clients.banking.addBankAccount.bind(clients.banking),
-    disconnectBankAccounts: clients.banking.disconnectBankAccounts.bind(clients.banking),
-
-    addClient: clients.clients.addClient.bind(clients.clients),
-    removeClient: clients.clients.removeClient.bind(clients.clients),
-
-    addAddress: clients.postOffice.addAddress.bind(clients.postOffice),
-    clearPostalAddresses: clients.postOffice.clearPostalAddresses.bind(clients.postOffice),
-  };
+    valor: resultado.value,
+    tentativa,
+  }
 }

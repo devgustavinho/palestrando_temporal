@@ -1,107 +1,36 @@
-import { proxyActivities, ActivityFailure, ApplicationFailure, log } from '@temporalio/workflow';
-import { createActivities } from './activities';
-import * as Workflows from './types/workflow-commands';
+import { executeChild, proxyActivities } from '@temporalio/workflow';
+import type * as activities from './activities';
+enum Moedas  {
+  REAL = "BRL", 
+  KWANZAS = "AOA",
+};
 
-import OpenAccount = Workflows.OpenAccount;
+const { consultarSaldoXXBank } = proxyActivities<typeof activities>({
+  startToCloseTimeout: '60s',
+  retry: {
+    backoffCoefficient: 1,
+    maximumInterval: '2s',
+  }
+});
 
-const defaultActivity = {
-  startToCloseTimeout: '2s',
-  scheduleToCloseTimeout: '3s',
-} as const;
-const longRunningActivity = {
-  startToCloseTimeout: '4s',
-  scheduleToCloseTimeout: '8s',
-} as const;
+const { buscar_dados_api, calcular_matematica_avancada } = proxyActivities({
+  startToCloseTimeout: '60s',
+  retry: {
+    backoffCoefficient: 1,
+    maximumInterval: '2s',
+  },
+  taskQueue: "matematico"
+});
 
-// activityFunctions
-const { addBankAccount } = proxyActivities<ReturnType<typeof createActivities>>(longRunningActivity);
-
-const { createAccount, addClient, removeClient, addAddress, clearPostalAddresses, disconnectBankAccounts } =
-  proxyActivities<ReturnType<typeof createActivities>>(defaultActivity);
-
-interface Compensation {
-  message: string;
-  fn: () => Promise<void>;
+export async function saldoAtualDaEmpresa(): Promise<activities.Saldo> {
+  return await consultarSaldoXXBank();
 }
 
-// workflow implementations
-// sequential executions
-export async function openAccount(params: OpenAccount): Promise<void> {
-  const compensations: Compensation[] = [];
-
-  try {
-    await createAccount({ accountId: params.accountId });
-  } catch (err) {
-    log.error('creating account failed. stopping.');
-    // this is fatal so fails fast. no compensations are needed
-    throw err;
-  }
-
-  try {
-    // addAddress
-    await addAddress({
-      accountId: params.accountId,
-      address: params.address,
-    });
-    // successfully called, so clear if a failure occurs later
-    compensations.unshift({
-      message: prettyErrorMessage('reversing add address'),
-      fn: () => clearPostalAddresses({ accountId: params.accountId }),
-    });
-
-    // addClient
-    await addClient({
-      accountId: params.accountId,
-      clientEmail: params.clientEmail,
-    });
-    // successfully called, so clear if a failure occurs later
-    compensations.unshift({
-      message: prettyErrorMessage('reversing add client'),
-      fn: () => removeClient({ accountId: params.accountId }),
-    });
-
-    // addBankAccount
-    await addBankAccount({
-      accountId: params.accountId,
-      details: params.bankDetails,
-      shouldThrow: prettyErrorMessage('add bank account failed'),
-    });
-    // successfully called, so clear if a failure occurs later
-    compensations.unshift({
-      message: prettyErrorMessage('reversing add bank account'),
-      fn: () => disconnectBankAccounts({ accountId: params.accountId }),
-    });
-  } catch (err) {
-    if (err instanceof ActivityFailure && err.cause instanceof ApplicationFailure) {
-      log.error(err.cause.message);
-    } else {
-      log.error(`error while opening account: ${err}`);
-    }
-    // an error occurred so call compensations
-    await compensate(compensations);
-    throw err;
-  }
-}
-
-async function compensate(compensations: Compensation[] = []) {
-  if (compensations.length > 0) {
-    log.info('failures encountered during account opening - compensating');
-    for (const comp of compensations) {
-      try {
-        log.error(comp.message);
-        await comp.fn();
-      } catch (err) {
-        log.error(`failed to compensate: ${prettyErrorMessage('', err)}`, { err });
-        // swallow errors
-      }
-    }
-  }
-}
-
-function prettyErrorMessage(message: string, err?: any) {
-  let errMessage = err && err.message ? err.message : '';
-  if (err && err instanceof ActivityFailure) {
-    errMessage = `${err.cause?.message}`;
-  }
-  return `${message}: ${errMessage}`;
+export async function valorEmReaisViaAPI(): Promise<number> {
+  const { valor } = await executeChild(saldoAtualDaEmpresa, {
+    workflowId: "saldo-da-empresa-via-api-" + Date.now()
+  });
+  const bolsaValoresKwanzas = await buscar_dados_api(Moedas.KWANZAS, Moedas.REAL);
+  const valorEmRais: number = await calcular_matematica_avancada(bolsaValoresKwanzas.value, valor);
+  return valorEmRais;
 }
