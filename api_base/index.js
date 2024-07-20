@@ -16,7 +16,7 @@ app.get('/user', (req, res) => {
   const random = Math.random();
   const user = users.find((user) => user.name.toLowerCase() === req.query?.name?.toLocaleLowerCase());
   if(!user) {
-    res.status(404).json({ error: 'not_found', cause: 'no_ecxistes' });
+    res.status(404).json({ error: 'not_found', cause: 'it_doesnt_exists' });
     return;
   }
   if (random < 0.2) {
