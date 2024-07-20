@@ -19,7 +19,7 @@ app.get('/user', (req, res) => {
     res.status(404).json({ error: 'not_found', cause: 'it_doesnt_exists' });
     return;
   }
-  if (random < 0.2) {
+  if (random < 0.5) {
     res.json(user);
   } else {
     res.status(500).json({ error: 'try_again', cause: 'oops' });
